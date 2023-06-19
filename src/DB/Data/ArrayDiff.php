@@ -5,6 +5,7 @@ use Diff\Differ\MapDiffer;
 use Diff\DiffOp\DiffOpAdd;
 use Diff\DiffOp\DiffOpRemove;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 
 class ArrayDiff {
@@ -53,10 +54,8 @@ class ArrayDiff {
                     // unset the fields to ignore
                     $params = ParamsFactory::get();
                     if (isset($params->fieldsToIgnore[$table])) {
-                        foreach ($params->fieldsToIgnore[$table] as $fieldToIgnore) {
-                            unset($entry1[$fieldToIgnore]);
-                            unset($entry2[$fieldToIgnore]);
-                        }
+                        $entry1 = Arr::except($entry1, $params->fieldsToIgnore[$table]);
+                        $entry2 = Arr::except($entry2, $params->fieldsToIgnore[$table]);
                     }
 
                     $differ = new MapDiffer();

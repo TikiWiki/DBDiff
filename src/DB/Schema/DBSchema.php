@@ -8,7 +8,7 @@ use DBDiff\Diff\SetDBCharset;
 use DBDiff\Diff\DropTable;
 use DBDiff\Diff\AddTable;
 use DBDiff\Diff\AlterTable;
-
+use Illuminate\Support\Str;
 
 
 class DBSchema {
@@ -44,8 +44,22 @@ class DBSchema {
         $targetTables = $this->manager->getTables('target');
 
         if (isset($params->tablesToIgnore)) {
-            $sourceTables = array_diff($sourceTables, $params->tablesToIgnore);
-            $targetTables = array_diff($targetTables, $params->tablesToIgnore);
+            $sourceTables = array_values(array_filter(
+                $sourceTables,
+                function ($tbl) use ($params) {
+                    foreach ($params->tablesToIgnore as $patt)
+                        if (Str::is($patt, $tbl)) return false;
+                    return true;
+                },
+            ));
+            $targetTables = array_values(array_filter(
+                $targetTables,
+                function ($tbl) use ($params) {
+                    foreach ($params->tablesToIgnore as $patt)
+                        if (Str::is($patt, $tbl)) return false;
+                    return true;
+                },
+            ));
         }
 
         $addedTables = array_diff($sourceTables, $targetTables);

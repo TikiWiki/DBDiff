@@ -4,6 +4,7 @@ use DBDiff\Params\ParamsFactory;
 use DBDiff\Diff\SetDBCollation;
 use DBDiff\Exceptions\DataException;
 use DBDiff\Logger;
+use Illuminate\Support\Str;
 
 
 class DBData {
@@ -24,8 +25,22 @@ class DBData {
         $targetTables = $this->manager->getTables('target');
 
         if (isset($params->tablesToIgnore)) {
-            $sourceTables = array_diff($sourceTables, $params->tablesToIgnore);
-            $targetTables = array_diff($targetTables, $params->tablesToIgnore);
+            $sourceTables = array_values(array_filter(
+                $sourceTables,
+                function ($tbl) use ($params) {
+                    foreach ($params->tablesToIgnore as $patt)
+                        if (Str::is($patt, $tbl)) return false;
+                    return true;
+                },
+            ));
+            $targetTables = array_values(array_filter(
+                $targetTables,
+                function ($tbl) use ($params) {
+                    foreach ($params->tablesToIgnore as $patt)
+                        if (Str::is($patt, $tbl)) return false;
+                    return true;
+                },
+            ));
         }
 
         $commonTables = array_intersect($sourceTables, $targetTables);
