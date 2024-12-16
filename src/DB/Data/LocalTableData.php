@@ -110,7 +110,7 @@ class LocalTableData {
 
         $wrapCast = function($arr, $p) {
             return array_map(function($el) use ($p) {
-                return "CAST(`{$p}`.`{$el}` AS CHAR CHARACTER SET utf8)";
+                return "COALESCE(CAST(`{$p}`.`{$el}` AS CHAR CHARACTER SET utf8), '')";
             }, $arr);
         };
 
